@@ -1,0 +1,63 @@
+# SimVision Command Script (Fri Mar 28 17:24:20 BRT 2025)
+#
+# Version 24.09
+#
+# You can restore this configuration with:
+#
+#     simvision -input simvision.svcf
+#
+
+#
+# Databases
+#
+database require waves -search {
+      ./waves.shm/waves.trn
+}
+
+#
+# Waveform windows
+#
+window new WaveWindow -name "SQRT Waveform"
+window target "SQRT Waveform" on
+waveform using {SQRT Waveform}
+
+# UVM Transaction signals
+set id [waveform add -signals {
+      waves::$uvm:{uvm_test_top.env_h.agent_in_h.sequencer_h}.seq
+      waves::$uvm:{uvm_test_top.env_h.agent_in_h.monitor_h}.tr
+      waves::$uvm:{uvm_test_top.env_h.refmod_h}.tr_out
+      waves::$uvm:{uvm_test_top.env_h.agent_out_h.monitor_h}.tr
+}]
+waveform hierarchy set -expandtype Attr:begin_time $id
+
+# Interface input signals
+waveform add -signals {
+      waves::top.sqrt_vi_in.clk
+      waves::top.sqrt_vi_in.start
+      waves::top.sqrt_vi_in.valid
+}
+
+# Input radicand
+set id [waveform add -signals {
+      {waves::top.sqrt_vi_in.rad[7:0]}
+}]
+waveform format $id -radix %d
+
+# Output interface signals
+waveform add -signals {
+      waves::top.sqrt_vi_out.busy
+      waves::top.sqrt_vi_out.valid
+}
+
+# Output root and remainder
+set id [waveform add -signals {
+      {waves::top.sqrt_vi_out.root[7:0]}
+      {waves::top.sqrt_vi_out.rem[7:0]}
+}]
+waveform format $id -radix %d
+
+# Reference model output
+set id [waveform add -signals {
+      waves::$uvm:{uvm_test_top.env_h.refmod_h}.tr_out
+}]
+waveform hierarchy set -expandtype Attr:begin_time $id
